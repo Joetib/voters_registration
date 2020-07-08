@@ -51,6 +51,8 @@ __pycache__/
 .env
 update-env.py
 /venv
+venv/
+venv/*
 
 
 *.log
