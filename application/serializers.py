@@ -1,3 +1,4 @@
+from application.models import Appointment
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import Serializer,CharField, ModelSerializer, ImageField
 from django.contrib.auth import get_user_model
@@ -88,8 +89,27 @@ class AppointmentSlotSerializer(ModelSerializer):
         model = models.AppointmentSlot
         fields = ('id', 'registration_center_work_day', 'duration')
 
+class AppointmentSlotSerializer2(ModelSerializer):
+    
+    class Meta:
+        model = models.AppointmentSlot
+        fields = ('id')
+
 class AppointmentSerializer(ModelSerializer):
-    qppointment_option = AppointmentSlotSerializer()
     class Meta:
         model = models.Appointment
-        fields = ('__all__',)
+        fields = ('appointment_slot', 'attempts')
+
+    def create(self, validated_data, user=None):
+        if user:
+            appointment_qs = Appointment.objects.filter(user=user)
+            if appointment_qs.exists():
+                appointment = appointment_qs[0]
+                appointment.appointment_slot = validated_data['appointment_slot']
+                appointment.attempts += 1
+                appointment.save()
+            else:
+                appointment = Appointment.objects.create(user=user, appointment_slot=validated_data['appointment_slot'])
+        else:
+            appointment = super().create(validated_data)
+        return appointment

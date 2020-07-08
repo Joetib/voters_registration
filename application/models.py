@@ -80,6 +80,8 @@ class RegistrationCenterWorkDay(models.Model):
     )
     day = models.DateField()
 
+    def __str__(self):
+        return f'{self.registration_center} day: {self.day}'
 
 NUMBER_OF_APPOINTMENTS_LIMIT = 1
 
@@ -95,7 +97,7 @@ class AppointmentSlot(models.Model):
     )
 
     def __str__(self):
-        return f"Center: {self.registration_center_work_day.regitration_center} Day: {self.registration_center_work_day.day} duration: {self.duration}"
+        return f"Center: {self.registration_center_work_day.registration_center} Day: {self.registration_center_work_day.day} duration: {self.duration}"
 
     def is_full(self):
         return len(self.appointments.all()) >= NUMBER_OF_APPOINTMENTS_LIMIT
@@ -105,7 +107,7 @@ class Appointment(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="appointment"
     )
-    appointment_option = models.ForeignKey(
+    appointment_slot = models.ForeignKey(
         AppointmentSlot, related_name="appointments", on_delete=models.CASCADE
     )
     attempts = models.PositiveIntegerField(default=0)
@@ -114,9 +116,9 @@ class Appointment(models.Model):
         return f"Appintment by {self.user} {self.appointment_option}"
 
     def save(self, *args, **kwargs):
-        if self.appointment_option.is_full():
+        if self.appointment_slot.is_full():
             raise Exception(
-                "Cannot save appointment because appointment_option is full"
+                "Cannot save appointment because appointment_slot is full"
             )
         super().save(*args, **kwargs)
 

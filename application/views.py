@@ -1,13 +1,15 @@
 from django.utils import timezone
+from rest_framework.serializers import Serializer
 from application.models import (
     District,
     AppointmentSlot,
     Appointment,
     Region,
-    RegistrationCenter, RegistrationCenterWorkDay,
+    RegistrationCenter,
+    RegistrationCenterWorkDay,
     UserProfile,
 )
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -16,7 +18,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from . import serializers
-from datetime import date, time
+from datetime import date
 
 # Create your views here.
 
@@ -126,14 +128,49 @@ class AvailableAppointmentInDistrictView(generics.ListAPIView):
     serializer_class = serializers.AppointmentSlotSerializer
 
     def get_queryset(self):
-        day_id = self.kwargs['id']
-        day_qs = RegistrationCenterWorkDay.objects.filter(day__gte=date.today(),id=day_id,)
+        day_id = self.kwargs["id"]
+        day_qs = RegistrationCenterWorkDay.objects.filter(
+            day__gte=date.today(), id=day_id,
+        )
         if day_qs.exists():
             day = day_qs[0]
         else:
             return []
-        appointmentslots = AppointmentSlot.objects.filter(duration__end__gt=timezone.now().time(), registration_center_work_day=day)
+        appointmentslots = AppointmentSlot.objects.filter(
+            duration__end__gt=timezone.now().time(), registration_center_work_day=day
+        )
         appointmentslots = [
-            appointmentslot for appointmentslot in appointmentslots if not appointmentslot.is_full()
+            appointmentslot
+            for appointmentslot in appointmentslots
+            if not appointmentslot.is_full()
         ]
         return appointmentslots
+
+
+class CreateAppointmentView(APIView):
+    serializer_class = serializers.AppointmentSerializer
+    permissions = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.AppointmentSerializer(data=request.data)
+        if serializer.is_valid():
+            instance = serializer.create(
+                user=request.user, validated_data=serializer.validated_data
+            )
+            data = serializer.data
+            data['id'] = instance.id
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class AppointmentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = serializers.AppointmentSerializer
+    permissios = [IsAuthenticated]
+
+    def get_queryset(self):
+        appointment_qs = Appointment.objects.filter(user=self.request.user)
+        if appointment_qs.exists():
+            appointment = appointment_qs[0]
+            return appointment
+        return None
