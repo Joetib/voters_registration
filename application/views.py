@@ -1,12 +1,13 @@
+from django.utils import timezone
 from application.models import (
     District,
     AppointmentSlot,
     Appointment,
     Region,
-    RegistrationCenter,
+    RegistrationCenter, RegistrationCenterWorkDay,
     UserProfile,
 )
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -15,6 +16,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from . import serializers
+from datetime import date, time
 
 # Create your views here.
 
@@ -120,9 +122,18 @@ class RegistrationCenterListView(generics.ListAPIView):
         return RegistrationCenter.objects.all()
 
 
-class AllAvailableAppointment(generics.ListAPIView):
+class AvailableAppointmentInDistrictView(generics.ListAPIView):
     serializer_class = serializers.AppointmentSlotSerializer
 
     def get_queryset(self):
-        appointments = AppointmentSlot.objects.filter(is_full=False)
-        return appointments
+        day_id = self.kwargs['id']
+        day_qs = RegistrationCenterWorkDay.objects.filter(day__gte=date.today(),id=day_id,)
+        if day_qs.exists():
+            day = day_qs[0]
+        else:
+            return []
+        appointmentslots = AppointmentSlot.objects.filter(duration__end__gt=timezone.now().time(), registration_center_work_day=day)
+        appointmentslots = [
+            appointmentslot for appointmentslot in appointmentslots if not appointmentslot.is_full()
+        ]
+        return appointmentslots

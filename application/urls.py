@@ -10,5 +10,5 @@ urlpatterns = [
     path('registration-centers/all/', views.RegistrationCenterListView.as_view(), name="all-registration-centers"),
     path('districts/all/', views.DistrictListView.as_view(), name="district-list-all"),
     path('regions/all/', views.RegionListView.as_view(), name="region-list-all"),
-    path('slots/all/', views.AllAvailableAppointment.as_view(), name="all-available-appointments"),
+    path('district/day/<int:id>/slots/available/', views.AvailableAppointmentInDistrictView.as_view(), name="all-available-appointments"),
 ]

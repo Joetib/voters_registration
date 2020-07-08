@@ -79,14 +79,14 @@ class RegistrationCenterWorkDaySerializer(ModelSerializer):
     registration_center = RegistrationCenterSerializer()
     class Meta:
         model = models.RegistrationCenterWorkDay
-        fields = ('id', 'registration_center' 'day')
+        fields = ('id', 'registration_center', 'day')
 
 class AppointmentSlotSerializer(ModelSerializer):
     registration_center_work_day  = RegistrationCenterWorkDaySerializer()
     duration = DurationSerializer()
     class Meta:
         model = models.AppointmentSlot
-        fields = ('__all__',)
+        fields = ('id', 'registration_center_work_day', 'duration')
 
 class AppointmentSerializer(ModelSerializer):
     qppointment_option = AppointmentSlotSerializer()

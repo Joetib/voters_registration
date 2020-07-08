@@ -53,6 +53,11 @@ update-env.py
 /venv
 venv/
 venv/*
+__pycache__
+__pycache__/*
+*/__pycache__/
+*/__pycache__
+*/__pycache__/*
 
 
 *.log
