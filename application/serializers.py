@@ -98,7 +98,7 @@ class AppointmentSlotSerializer2(ModelSerializer):
 class AppointmentSerializer(ModelSerializer):
     class Meta:
         model = models.Appointment
-        fields = ('appointment_slot', 'attempts')
+        fields = ('appointment_slot',)
 
     def create(self, validated_data, user=None):
         if user:
@@ -113,3 +113,9 @@ class AppointmentSerializer(ModelSerializer):
         else:
             appointment = super().create(validated_data)
         return appointment
+
+class AppointmentDetailSerializer(ModelSerializer):
+    appointment_slot = AppointmentSlotSerializer()
+    class Meta:
+        model = models.Appointment
+        fields = ('id','appointment_slot', 'attempts')

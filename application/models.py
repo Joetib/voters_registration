@@ -83,7 +83,7 @@ class RegistrationCenterWorkDay(models.Model):
     def __str__(self):
         return f'{self.registration_center} day: {self.day}'
 
-NUMBER_OF_APPOINTMENTS_LIMIT = 1
+NUMBER_OF_APPOINTMENTS_LIMIT = 6
 
 
 class AppointmentSlot(models.Model):
