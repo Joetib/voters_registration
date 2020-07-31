@@ -19,8 +19,6 @@ class UserProfile(models.Model):
     verified = models.BooleanField(default=False)
     # The user's national id card number
     national_id_no = models.CharField(max_length=100, blank=True, null=True)
-    # Implementing a field for a user who is a Guarantor and
-    # a feild for the list of people guaranteed for.
 
     def save(self, *args, **kwargs):
         if (not self.verified) and self.national_id_no:
