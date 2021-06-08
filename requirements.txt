@@ -10,7 +10,7 @@ Django==3.0.8
 django-allauth==0.42.0
 django-rest-auth==0.9.5
 django-rest-framework==0.1.0
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 idna==2.10
 oauthlib==3.1.0
 pathspec==0.8.0
